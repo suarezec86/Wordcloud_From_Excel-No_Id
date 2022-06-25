@@ -1,2 +1,3 @@
 # Wordcloud_From_Excel-No_Id
-Subir un excel y obtener la frecuencia de las palabras
+Input: Subir un excel solo con una columna de oraciones
+Output: Se obtiene la frecuencia de las palabras
