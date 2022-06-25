@@ -152,7 +152,7 @@ df2 = CallSortDf(df2,['weight'],[False])
 df2 = df2[['weight','word']]
 
 CallExportToCsv(pathFileOutput,"Output",df2)
-CallExportToExcel1("Output",df2,pathFileOutput,"Wordcloud")
+# CallExportToExcel1("Output",df2,pathFileOutput,"Wordcloud")
 
 # print(df2.values,df2.index)
 # sns.barplot(x = df2.values, y = df2.index, orient="h")
