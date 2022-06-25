@@ -1,6 +1,6 @@
 # Wordcloud_From_Excel-No_Id
-**Inputs:** 
+##**Inputs:** 
 - Subir un excel solo con un campo de oraciones.
 
-**Outputs:** 
+##**Outputs:** 
 - Se obtiene la frecuencia de las palabras.
