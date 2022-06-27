@@ -1,14 +1,19 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns 
 import re
 import csv
 import sys
+import os
+import json
 
 '''
 El output sale con los campos aptos para importar a la herramienta online
 https://www.nubedepalabras.es/
 '''
+
+def CallLoadParams(directory):    
+    with open(directory + '\\_Params.txt') as f:
+        params = json.load(f)
+    return params
 
 # function to get unique values 
 def unique(list1): 
@@ -37,7 +42,7 @@ def CallLoadCSV(myPath,fileName,fields):
     #import sys
     try:
         # Check if file is open before start
-        myfile = open(myPath + fileName + '.csv', "r+") # or "a+", whatever you need
+        myfile = open(myPath + fileName + ".csv", "r+") # or "a+", whatever you need
     except IOError:
         sys.exit("Close the file (" + fileName + ") and run againg the process.")
     
@@ -98,62 +103,70 @@ def CallExportToExcel1(fileName, df, myPath, sheetName):
 #======================================================================
 # Parameters
 
-pathFileInput = "E://Unidades compartidas//Area Analytics//CLIENTES//AUTOMATIZACION//Wordcloud//Columns 1//"
-pathFileOutput = pathFileInput
-inputFileName = 'Input'
+if __name__ == "__main__":
+    directory = os.path.dirname(os.path.abspath(__file__))
 
-pathStopwords = "E://Unidades compartidas//Area Analytics//CLIENTES//Power BI - Word Cloud - Stopwords.csv"
-letter_replace={'á':'a','é':'e','í':'i','ó':'o','ú':'u','à':'a','è':'e','ì':'i','ò':'o','ù':'u','ü':'u'}
-# separate=""
-# After_regex=""
-#======================================================================
-
-# list of strings 
-# lst = ['á @Bobó c! 2323', '#É https://t.co/b6czdql6eo feo???', 'Acompañandote Hùesò https://t.co/mesn3uswkx', 'íglèsìà feo feo'] 
-# df1 = pd.DataFrame(lst, columns =['Message'])
-df1 = CallLoadCSV(pathFileInput,inputFileName,['Message'])
-
-# Load stopwords
-with open(pathStopwords,encoding='utf-8') as f:
-    reader = csv.reader(f)
-    myStopWords = []
-    for i,row in enumerate(reader):
-        if(i>0):
-            myStopWords.append(','.join(map(str,row)).title())
-f.close()
-
-dfs=[]
-myResult=[]
-for i in df1.Message: 
-    i = str(i) 
-    separate = i.split(" ") 
+    params = CallLoadParams(directory)
+    pathFileInput = directory + '\\'
+    pathFileOutput = directory + '\\'
+    stopwordsPath= directory + '\\'
     
-    for j in range(len(separate)): 
-        separate[j] = separate[j].lower() 
+    inputFileName =  params['inputFileName']
+    outputFileName = params['outputFileName']
+    
+    stopwordsFileName = params['stopwordsFileName']
+    textTitle = params['textTitle']
+    col1Name = params['Col1Name']
+    col2Name = params['Col2Name']
+    col3Name = params['Col3Name']
+    col4Name = params['Col4Name']
+    
+    letter_replace={'á':'a','é':'e','í':'i','ó':'o','ú':'u','à':'a','è':'e','ì':'i','ò':'o','ù':'u','ü':'u'}
+    #======================================================================
 
-        #print("!!!: ",separate[j]," $$$: ",separate[j].find('http',0,4))
-        if (separate[j].find('http',0,4) != 0):            
-            for key, value in letter_replace.items():
-                separate[j]=re.sub(key, value, separate[j])
-                
-            After_regex=[re.sub("[^a-z0-9ñ]+", '', separate[j]).title()]
-            if not set(myStopWords).intersection(After_regex):
-                myResult=After_regex
-        #print("After regex:" ,After_regex)
-        dfs+= myResult
-        #print("Append: ",dfs)
+    # Load list of words/phrases to analyse
+    df1 = CallLoadCSV(pathFileInput,inputFileName,[textTitle])
 
-#df2=pd.DataFrame(unique(dfs),columns=["Words"])
-df2=pd.DataFrame(dfs,columns=["word"])
-df2 = CallGroupbyCount(df2,['word'])
+    # Load stopwords
+    with open(stopwordsPath+stopwordsFileName+'.csv',encoding='utf-8') as f:
+        reader = csv.reader(f)
+        myStopWords = []
+        for i,row in enumerate(reader):
+            if(i>0):
+                myStopWords.append(','.join(map(str,row)).title())
+    f.close()
+    
+    dfs=[]
+    myResult=[]
+    for index, row in df1.iterrows(): 
+        i = str(row[textTitle]) 
+        separate = i.split(" ") 
+        
+        for j in range(len(separate)): 
+            separate[j] = separate[j].lower() 
 
-df2 = df2.rename(columns={'Value':'weight'})
-df2 = CallSortDf(df2,['weight'],[False])
-df2 = df2[['weight','word']]
+            #print("!!!: ",separate[j]," $$$: ",separate[j].find('http',0,4))
+            if (separate[j].find('http',0,4) != 0):            
+                for key, value in letter_replace.items():
+                    separate[j]=re.sub(key, value, separate[j])
+                    
+                After_regex=[re.sub("[^a-z0-9ñ]+", '', separate[j]).title()]
+                if not set(myStopWords).intersection(After_regex):
+                    myResult=After_regex
+            #print("After regex:" ,After_regex)
+            dfs+= myResult
+            #print("Append: ",dfs)
 
-CallExportToCsv(pathFileOutput,"Output",df2)
-# CallExportToExcel1("Output",df2,pathFileOutput,"Wordcloud")
+    df2 = pd.DataFrame(dfs,columns=[col2Name])
+    df2 = CallGroupbyCount(df2,[col2Name])
 
-# print(df2.values,df2.index)
-# sns.barplot(x = df2.values, y = df2.index, orient="h")
-# plt.show()
+    df2 = df2.rename(columns={'Value':col1Name})
+    df2 = CallSortDf(df2,[col1Name],[False])
+    df2 = df2[[col1Name,col2Name]]
+    df2[col3Name] = ""
+    df2[col4Name] = ""
+
+    CallExportToCsv(pathFileOutput,outputFileName,df2)
+    # CallExportToExcel1("Output",df2,pathFileOutput,"Wordcloud")
+else:
+    print("File Wordcloud_From_Excel-No_Id.py imported")
