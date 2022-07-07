@@ -8,7 +8,7 @@
 - Mediante el archivo **Wordcloud_From_Excel-No_Id.py** se obtiene la nube de palabras.
 
 ## **Outputs:** 
-- En el archivo **_Output.csv**, se obtiene la frecuencia de las palabras, con los campos aptos para importar a la herramienta online [www.nubedepalabras.es](https://www.nubedepalabras.es/), para generación de nuve de palabras.
+- En el archivo **_Output.csv**, se obtiene la frecuencia de las palabras, con los campos aptos para importar a la herramienta online [www.nubedepalabras.es](https://www.nubedepalabras.es/), para generación de nube de palabras.
 
 ## **Extras:**
 - Se anexan templates los cuales se pueden importar a la herramienta online mencionada:
