@@ -1,19 +1,15 @@
+from _Params import CallParams
+
 import pandas as pd
 import re
 import csv
 import sys
 import os
-import json
 
 '''
 El output sale con los campos aptos para importar a la herramienta online
 https://www.nubedepalabras.es/
 '''
-
-def CallLoadParams(directory):    
-    with open(directory + '\\_Params.txt') as f:
-        params = json.load(f)
-    return params
 
 # function to get unique values 
 def unique(list1): 
@@ -106,7 +102,7 @@ def CallExportToExcel1(fileName, df, myPath, sheetName):
 if __name__ == "__main__":
     directory = os.path.dirname(os.path.abspath(__file__))
 
-    params = CallLoadParams(directory)
+    params = CallParams()
     pathFileInput = directory + '\\'
     pathFileOutput = directory + '\\'
     stopwordsPath= directory + '\\'
